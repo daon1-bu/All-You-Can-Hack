@@ -17,6 +17,13 @@ COMMON_PORT={
     3389: "RDP",
 }
 
+
+
+
+
+
+
+
 def is_open(host: str, port: int, timeout: float =0.8) -> bool:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(timeout)
@@ -26,6 +33,25 @@ def is_open(host: str, port: int, timeout: float =0.8) -> bool:
         s.close()
 
 
+
+
+def grab_banner(host: str, port: int, timeout: float =1.5) -> str:
+    try:
+        s = socket.socket()
+        s.settimeout(timeout)
+        s.connect((host, port))
+        
+        if port == 80 or port == 443:
+            s.send(b"HEAD / HTTP/1.1\r\nHost: test\r\n\r\n")
+        else:
+            s.send(b"\r\n")
+
+        banner = s.recv(1024).decode(errors="ignore").strip()
+        s.close()
+        return banner[:80]
+    except:
+        return""
+        
 def main():
     print("Simple Port Scanner\n")
 
@@ -50,7 +76,12 @@ def main():
     for port, name in COMMON_PORT.items():
         if is_open(host, port):
             found = True
-            print(f"[OPEN] {port} - {name}")
+            banner = grab_banner(host, port)
+
+            if banner:
+                print(f"[OPEN] {port} - {name}")
+            else:
+                print(f"[OPEN] {port} - {name}")
 
     if not found:
         print("No common port open.")
