@@ -1,0 +1,140 @@
+🛡️ LLMNR Poisoning Attack & Mitigation (Active Directory Lab)
+📌 Overview
+
+As part of my home Active Directory lab, I performed an LLMNR poisoning attack to demonstrate how attackers can capture and crack Windows authentication hashes on a local network.
+After successfully exploiting the weakness, I implemented enterprise mitigations to secure the environment.
+
+This simulates a real internal pentest attack path.
+
+🖥️ Lab Environment
+Infrastructure
+
+1 × Domain Controller (Windows Server)
+
+2 × Domain-joined Windows Clients
+
+VirtualBox NAT Network
+
+Tools Used
+
+Kali Linux
+
+Responder
+
+Hashcat
+
+Windows Group Policy
+
+⚔️ Attack Walkthrough
+What is LLMNR?
+
+LLMNR (Link-Local Multicast Name Resolution) is used when DNS fails to resolve a hostname.
+
+When a user tries to access a resource that doesn’t exist, Windows broadcasts:
+
+“Who has this hostname?”
+
+An attacker can respond first and impersonate the requested service, capturing NTLM authentication hashes.
+
+Step 1 — Start Responder (Attacker Machine)
+sudo responder -I eth0 -rdwv
+
+Responder listens for broadcast name resolution requests and poisons the response.
+
+Step 2 — Victim Triggers Name Resolution
+
+A domain user attempts to access a non-existent share:
+
+\\fileshare
+
+DNS fails → Windows falls back to LLMNR → attacker responds.
+
+Step 3 — Capture NTLM Hash
+
+Responder captures the NTLMv2 hash:
+
+[SMB] NTLMv2-SSP Hash captured from USER
+
+The attacker now has the victim’s authentication hash.
+
+Step 4 — Crack the Hash
+
+Using Hashcat with the rockyou wordlist:
+
+hashcat -m 5600 hash.txt /usr/share/wordlists/rockyou.txt
+
+Attack chain complete:
+
+LLMNR Poisoning → Hash Capture → Hash Cracking → Credential Access
+💥 Impact
+
+With valid credentials an attacker can:
+
+Access SMB shares
+
+Move laterally across the network
+
+Escalate privileges
+
+Potentially compromise the domain
+
+This attack is extremely common in internal penetration tests.
+
+🛠️ Mitigation & Hardening
+1️⃣ Disable LLMNR (Primary Defense)
+
+Configured via Group Policy:
+
+Computer Configuration
+ → Administrative Templates
+ → Network
+ → DNS Client
+ → Turn OFF Multicast Name Resolution = Enabled
+
+This stops Windows from broadcasting hostname requests.
+
+2️⃣ Disable NetBIOS (NBT-NS)
+
+On each network adapter:
+
+IPv4 → Advanced → WINS → Disable NetBIOS over TCP/IP
+
+Removes the legacy fallback protocol used in the attack.
+
+3️⃣ Enforce Strong Password Policy
+
+LLMNR attacks rely on hash cracking.
+
+Best practices:
+
+Minimum 14+ characters
+
+Avoid common words
+
+Use passphrases
+
+Example:
+
+Weak  : Summer2024!
+Strong: MyDogEatsPizzaAtMidnight!
+🎓 Lessons Learned
+
+This lab demonstrates how:
+
+Legacy protocols create modern security risks
+
+Internal attacks require minimal access
+
+Proper hardening fully prevents this attack
+
+🧠 Skills Demonstrated
+
+Active Directory lab deployment
+
+Internal network attack simulation
+
+Credential capture & cracking
+
+Windows security hardening
+
+Security documentation & reporting
