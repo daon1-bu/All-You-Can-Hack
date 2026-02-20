@@ -1,0 +1,103 @@
+🧪 PortSwigger Lab — SQL Injection Using Burp Intruder (Payload File Method)
+📌 Lab Objective
+
+Exploit a SQL injection vulnerability in the category parameter to retrieve hidden products.
+
+Instead of testing manually, I used Burp Intruder with a custom SQL payload file to automate detection.
+
+🔎 Step 1 — Identify Injection Point
+
+While browsing product categories, the application generated:
+
+GET /filter?category=Accessories
+
+The category parameter is user-controlled and reflected in backend SQL queries.
+
+This makes it a strong injection candidate.
+
+🚀 Step 2 — Send Request to Intruder
+
+In Burp:
+
+Proxy → HTTP History
+
+Right-click request
+
+Send to Intruder
+
+Positions Configuration
+
+Cleared all auto-selected markers
+
+Highlighted only:
+
+Accessories
+
+Burp formatted it as:
+
+GET /filter?category=§Accessories§
+
+Attack type: Sniper
+
+📂 Step 3 — Load SQL Payload File
+
+Go to this link to download fuzzing file
+https://github.com/PenTestical/sqli/blob/main/hugeSQL.txt
+
+In the Payloads tab:
+
+Payload type: Simple List
+
+Loaded external SQL injection payload file containing common boolean-based tests:
+
+Examples from file:
+
+'
+''
+'--
+' OR 1=1--
+' OR 1=1#
+' OR '1'='1
+' AND 1=2--
+' ORDER BY 1--
+' UNION SELECT NULL--
+
+This allows automated testing without manual repetition.
+
+📊 Step 4 — Analyze Results
+
+After launching the attack, I sorted results by:
+
+Response Length
+
+Status Code
+
+Baseline response length:
+
+~4978 bytes
+
+Payload:
+
+' OR 1=1--
+
+Response length:
+
+~14000+ bytes
+
+Significant increase in page size indicates:
+
+Query condition evaluated TRUE
+
+Hidden products returned
+
+SQL injection confirmed
+
+🎯 Step 5 — Confirm in Repeater
+
+After identifying the working payload, I sent it to Repeater for validation:
+
+GET /filter?category=' OR 1=1--
+
+The page displayed all products, including unreleased items.
+
+Lab solved.
