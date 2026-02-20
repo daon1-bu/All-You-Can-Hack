@@ -1,0 +1,114 @@
+🚀 Burp Suite Quick Setup Guide (Fast Lab Setup)
+
+This guide shows how to set up Burp Suite + Firefox + FoxyProxy for web pentesting and PortSwigger labs.
+
+Goal: intercept HTTPS traffic in under 5 minutes.
+
+🧰 Requirements
+
+Burp Suite Community or Pro
+
+Firefox browser
+
+FoxyProxy extension
+
+1️⃣ Install Burp Suite
+
+Download:
+
+https://portswigger.net/burp
+
+Run Burp → choose Temporary project → Start Burp.
+
+Burp will open with the proxy listener enabled by default.
+
+Verify listener:
+
+Proxy → Options → Proxy Listeners
+
+You should see:
+
+127.0.0.1 : 8080
+
+If missing, add it manually:
+
+Address: 127.0.0.1
+
+Port: 8080
+
+2️⃣ Install FoxyProxy (Firefox)
+
+Open Firefox → install extension:
+
+https://addons.mozilla.org/en-US/firefox/addon/foxyproxy-standard/
+3️⃣ Configure FoxyProxy
+
+Open FoxyProxy → Add new proxy.
+
+Fill exactly:
+
+Type: HTTP
+Hostname: 127.0.0.1
+Port: 8080
+Username: (blank)
+Password: (blank)
+Proxy DNS: OFF
+
+Save and turn the proxy ON.
+
+Your browser is now sending traffic to Burp.
+
+4️⃣ Install Burp CA Certificate (IMPORTANT)
+
+Without this step HTTPS will fail.
+
+While proxy is ON, open:
+
+http://burp
+
+Download:
+
+CA Certificate → cacert.der
+Import certificate into Firefox
+
+Open:
+
+about:preferences#privacy
+
+Scroll → Certificates → View Certificates → Authorities → Import
+
+Select cacert.der and check BOTH boxes:
+
+Trust this CA to identify websites
+
+Trust this CA to identify email users
+
+Click OK.
+
+5️⃣ Test Intercept
+
+In Burp:
+
+Proxy → Intercept → Intercept is ON
+
+Visit any website in Firefox.
+
+If the page freezes → interception works ✅
+
+Click Forward in Burp to load the page.
+
+Burp is now successfully performing HTTPS interception.
+
+6️⃣ Essential Burp Workflow
+
+Daily workflow for labs:
+
+Browser → Proxy → Send to Repeater → Attack → Intruder (automation)
+
+Main tabs you’ll use:
+
+Tab	Purpose
+Proxy	Capture traffic
+Repeater	Manual testing
+Intruder	Automated attacks
+Decoder	Encode / decode payloads
