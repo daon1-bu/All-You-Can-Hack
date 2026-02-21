@@ -1,0 +1,89 @@
+PART 1 #TCM Security
+I Built a Full Active Directory Home Lab (Step-by-Step Guide)
+I recently completed building a full Active Directory home lab using VirtualBox (1 Domain Controller + 2 Windows clients).
+I documented everything — from hardware requirements to troubleshooting — so anyone starting in IT, Networking, or Cybersecurity can replicate it without guessing.
+Building this once teaches more than reading about Active Directory for months.
+Active Directory Lab Overview
+Architecture
+• 1 Windows Server Domain Controller
+• 2 Windows client machines joined to the domain
+• Internal DNS managed by the Domain Controller
+• Private virtual network
+• Central authentication + shared network drive
+Objective
+Create a realistic enterprise environment where domain users can log into multiple machines and access centralized resources.
+This mirrors how real corporate networks operate.
+PC Requirements (Minimum)
+You can run this on a laptop, but resources matter.
+Recommended specs
+• CPU: 4 cores minimum (8 preferred)
+• RAM: 16 GB minimum (24–32 GB ideal)
+• Storage: 150–200 GB free SSD space
+• Virtualization enabled in BIOS (Intel VT-x / AMD-V)
+Running Windows Server + 2 Windows clients simultaneously consumes significant RAM and disk I/O.
+Insufficient RAM often causes VM instability and login failures.
+Software Requirements (Official Downloads)
+Virtualization:
+• VirtualBox — https://lnkd.in/e9Zmsith
+Operating Systems (Free Evaluations from Microsoft):
+• Windows Server Evaluation — https://lnkd.in/epUWdnRR
+Part 2 TCM Security
+
+• Windows 10/11 Enterprise Evaluation — https://lnkd.in/ex2jstU4
+Evaluation versions are perfect for home labs.
+Network Design (Critical)
+All machines must use the same VirtualBox NAT Network.
+Important distinction:
+• NAT = isolated VMs (breaks domain functionality)
+• NAT Network = shared virtual LAN (required)
+The key principle:
+All machines must be on the same internal network and clients must use the Domain Controller as their DNS server.
+If DNS does not point to the Domain Controller, the domain will fail.
+DNS is the backbone of Active Directory.
+Domain Controller Build Process
+Install Windows Server
+Configure networking and DNS
+Install Active Directory Domain Services role
+Promote server to Domain Controller
+Create domain (example: marvel.local)
+Create domain users
+Create shared folder and assign permissions
+Verify DNS zone and host records
+At this point, the server becomes the identity provider for the network.
+Client Configuration
+Each client must be configured manually:
+• Configure networking
+• Set DNS → Domain Controller
+• Join domain via System Properties
+• Restart and log in using domain credentials
+Once joined, domain users can sign in on any domain machine.
+What Will Go Wrong (Troubleshooting)
+These are the exact issues beginners hit.
+NAT vs NAT Network confusion
+#1 cause of failure. One wrong adapter breaks the domain.
+Boot order problems
+Clients must start AFTER the Domain Controller.
+DNS misconfiguration
+If DNS is wrong, the domain becomes unreachable even if the network appears functional.
+Time sync (Kerberos)
+If clocks differ by more than 5 minutes → authentication fails.
+IPv6 interference
+Windows may prefer IPv6 DNS and break name resolution.
+Broken domain trust
+Fix: remove machine from domain → rejoin domain.
+Network Discovery confusion
+Modern Windows rarely auto-lists computers.
+Use UNC paths instead:
+
+\\server\share
+Final Result
+Users can:
+• Log into multiple machines using domain accounts
+• Access shared network drives centrally
+• Authenticate across the network like a real enterprise
+Why This Lab Matters
+This is the foundation for:
+• Active Directory security
+• Blue Team & Red Team training
+• Help Desk & System Administration roles
+• Real enterprise troubleshooting skills
